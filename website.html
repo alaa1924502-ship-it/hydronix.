@@ -6,234 +6,260 @@
 <title>Hydronix Dashboard</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
+<!-- 🔥 Heatmap Library -->
+<script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI";}
-body{display:flex;background:#f4f7fb;}
-.sidebar{width:230px;height:100vh;background:#003366;color:white;padding:25px 15px;position:fixed;}
-.logo{font-size:22px;font-weight:bold;margin-bottom:40px;}
-.sidebar a{display:block;color:white;text-decoration:none;padding:12px;margin-bottom:10px;border-radius:8px;}
-.sidebar a:hover{background:#005fa3;}
-.main{margin-left:230px;width:100%;padding:30px;}
-.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;}
-.topbar h2{color:#003366;}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;}
-.card{background:white;padding:25px;border-radius:14px;box-shadow:0 5px 15px rgba(0,0,0,0.08);}
-.card h3{color:#003366;}
-.btn{padding:10px 18px;border:none;border-radius:8px;background:#0077cc;color:white;cursor:pointer;}
-.toast{position:fixed;top:20px;right:20px;background:#003366;color:white;padding:12px 20px;border-radius:8px;opacity:0;transition:0.4s;}
-.toast.show{opacity:1;}
 
-.language-box{position:relative;}
-.lang-btn{background:#0077cc;border:none;padding:8px 14px;border-radius:6px;color:white;cursor:pointer;}
-.lang-options{display:none;position:absolute;right:0;background:white;color:black;border-radius:8px;overflow:hidden;}
-.lang-options div{padding:8px 12px;cursor:pointer;}
-.lang-options div:hover{background:#eee;}
-.language-box.active .lang-options{display:block;}
+body{display:flex;background:#f4f7fb;transition:0.3s;}
+
+/* DARK MODE */
+body.dark{background:#0f172a;color:white;}
+body.dark .card{background:#1e293b;color:white;}
+body.dark .sidebar{background:#111827;}
+
+.sidebar{
+width:230px;height:100vh;background:#003366;
+color:white;padding:25px 15px;position:fixed;
+}
+
+.logo{font-size:22px;font-weight:bold;margin-bottom:40px;}
+
+.sidebar a{
+display:block;color:white;text-decoration:none;
+padding:12px;margin-bottom:10px;border-radius:8px;
+transition:0.3s;
+}
+
+.sidebar a:hover{
+background:#0077cc;
+transform:translateX(5px);
+}
+
+.main{margin-left:230px;width:100%;padding:30px;}
+
+.topbar{
+display:flex;justify-content:space-between;align-items:center;
+margin-bottom:30px;
+}
+
+.cards{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+}
+
+.card{
+background:white;
+padding:25px;
+border-radius:14px;
+box-shadow:0 5px 15px rgba(0,0,0,0.08);
+transition:0.3s;
+}
+
+.card:hover{transform:translateY(-5px);}
+
+.btn{
+padding:10px 18px;
+border:none;
+border-radius:8px;
+background:#0077cc;
+color:white;
+cursor:pointer;
+transition:0.3s;
+}
+
+.btn:hover{background:#005fa3;transform:scale(1.05);}
+
+#map{
+height:320px;
+margin-top:30px;
+border-radius:10px;
+}
+
 </style>
 </head>
 
 <body>
 
+<!-- SIDEBAR -->
 <div class="sidebar">
 <div class="logo">💧 Hydronix</div>
-<a href="#">🏠 Home</a>
-<a href="#">🌧️ Rain Map</a>
-<a href="#">⚙️ How It Works</a>
+<a href="home.html">🏠 Home</a>
+<a href="خريطة.html">🌧️ Rain Map</a>
+<a href="analysis.html">📊 Analysis for investors</a>
+<a href="how.html">⚙️ System</a>
 <a href="#">ℹ️ About</a>
 </div>
 
+<!-- MAIN -->
 <div class="main">
 
 <div class="topbar">
-<h2 id="welcome-text">Dashboard</h2>
+<h2>Dashboard 🌧️</h2>
 
-<div class="language-box">
-<button class="lang-btn">Language ▼</button>
-<div class="lang-options">
-<div onclick="setLanguage('en')">English</div>
-<div onclick="setLanguage('ar')">العربية</div>
-<div onclick="setLanguage('fr')">Français</div>
-</div>
-</div>
+<button onclick="toggleDark()" class="btn">🌙 Dark Mode</button>
 </div>
 
+<!-- CARDS -->
 <div class="cards">
+
 <div class="card">
-<h3 id="card1-title">Rain Level</h3>
+<h3>Rain Status</h3>
 <p id="rain-status">Loading...</p>
 </div>
 
 <div class="card">
-<h3 id="card2-title">Water Saved</h3>
-<p>1200 Liters 💧</p>
+<h3>Water Saved</h3>
+<p id="water">0 L 💧</p>
 </div>
 
 <div class="card">
-<h3 id="card3-title">System Status</h3>
-<p>Active ✅</p>
+<h3>System</h3>
+<p id="system">Active ✅</p>
 </div>
+
 </div>
 
-<canvas id="rainChart" height="100" style="margin-top:30px;"></canvas>
+<!-- CHART -->
+<canvas id="chart" style="margin-top:30px;"></canvas>
 
-<div id="map" style="height:300px; margin-top:30px;"></div>
+<!-- MAP -->
+<div id="map"></div>
 
+<!-- BUTTON -->
 <button class="btn" style="margin-top:20px;" onclick="predictRain()">
 Predict Rain 🤖
 </button>
 
 </div>
 
-<div id="toast" class="toast"></div>
-
 <script>
-window.onload = function(){
 
-// 🔑 API KEY
-const API_KEY = "d831b8220bd3050330c5f6bed0e2690b";
+const API_KEY = "YOUR_API_KEY_HERE";
+
+let map;
+
+// ================= DARK MODE =================
+function toggleDark(){
+document.body.classList.toggle("dark");
+}
 
 // ================= WEATHER =================
 async function loadWeather(){
-try{
-const res = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=Cairo&appid=${API_KEY}&units=metric`);
-const data = await res.json();
 
-if(!data.list || data.list.length === 0) return;
+const res = await fetch(
+`https://api.openweathermap.org/data/2.5/forecast?q=Cairo&appid=${API_KEY}&units=metric`
+);
+
+const data = await res.json();
 
 let labels = [];
 let rainData = [];
 
 for(let i=0;i<7;i++){
-let item = data.list[i];
-labels.push(item.dt_txt.split(" ")[0]);
-rainData.push(item.rain?.["3h"] ?? 0);
+labels.push(data.list[i].dt_txt.split(" ")[0]);
+rainData.push(data.list[i].rain?.["3h"] ?? 0);
 }
 
-new Chart(document.getElementById('rainChart'), {
-type:'line',
+new Chart(document.getElementById("chart"),{
+type:"line",
 data:{
 labels:labels,
 datasets:[{
-label:'Rain (mm)',
+label:"Rain",
 data:rainData,
-borderWidth:2,
-tension:0.4
+borderWidth:2
 }]
-},
-options:{
-responsive:true,
-scales:{y:{beginAtZero:true}}
 }
 });
 
-let rain = rainData[0];
-let status = rain>5?"Heavy 🌧️":rain>1?"Moderate 🌥️":"Low ☀️";
-document.getElementById("rain-status").innerText = status;
+document.getElementById("rain-status").innerText =
+rainData[0] > 5 ? "Heavy 🌧️" : "Light ☀️";
 
-}catch(err){
-document.getElementById("rain-status").innerText = "Error loading data";
-}
+let water = rainData[0] * 120;
+
+document.getElementById("water").innerText =
+Math.round(water) + " L 💧";
+
 }
 
-// ================= MAP =================
+// ================= MAP + HEATMAP =================
 async function loadMap(){
+
 navigator.geolocation.getCurrentPosition(async(pos)=>{
 
 let lat = pos.coords.latitude;
 let lon = pos.coords.longitude;
 
-let map = L.map('map').setView([lat,lon],7);
+map = L.map("map").setView([lat,lon],8);
 
-// ✅ FIXED TILE (no block issue)
-L.tileLayer('https://tile.openstreetmap.de/{z}/{x}/{y}.png', {
-attribution: '&copy; OpenStreetMap contributors'
-}).addTo(map);
+L.tileLayer("https://tile.openstreetmap.de/{z}/{x}/{y}.png").addTo(map);
 
-const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`);
+// marker
+L.marker([lat,lon]).addTo(map)
+.bindPopup("You are here 📍")
+.openPopup();
+
+// ================= WEATHER FOR LOCATION =================
+const res = await fetch(
+`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`
+);
+
 const data = await res.json();
 
 let rain = data.rain?.["1h"] ?? 0;
-let status = rain>5?"Heavy 🌧️":rain>1?"Moderate 🌥️":"Low ☀️";
 
-L.marker([lat,lon]).addTo(map)
-.bindPopup(`Rain: ${rain} mm <br>${status}`)
-.openPopup();
+// ================= SAVE DATA =================
+let history = JSON.parse(localStorage.getItem("rainHistory")) || [];
+
+history.push({
+lat: lat,
+lon: lon,
+rain: rain,
+date: new Date().toISOString()
+});
+
+localStorage.setItem("rainHistory", JSON.stringify(history));
+
+// ================= HEATMAP =================
+let heatPoints = history.map(r => [
+r.lat,
+r.lon,
+r.rain * 2
+]);
+
+L.heatLayer(heatPoints,{
+radius:25,
+blur:15,
+maxZoom:10,
+gradient:{
+0.1:"blue",
+0.4:"lime",
+0.7:"yellow",
+1:"red"
+}
+}).addTo(map);
 
 });
+
 }
 
-// ================= AI PREDICTION =================
-window.predictRain = async function(){
-const res = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=Cairo&appid=${API_KEY}&units=metric`);
-const data = await res.json();
-
-if(!data.list) return;
-
-let values = [];
-
-for(let i=0;i<5;i++){
-values.push(data.list[i].rain?.["3h"] ?? 0);
+// ================= AI =================
+function predictRain(){
+document.getElementById("rain-status").innerText =
+"AI Prediction Running 🤖...";
 }
 
-let avg = values.reduce((a,b)=>a+b,0)/values.length;
-
-let result = avg>5?"High 🌧️":avg>1?"Moderate 🌥️":"Low ☀️";
-
-document.getElementById("rain-status").innerText = "AI Prediction: " + result;
-}
-
-// ================= LOGIN CHECK =================
-if(localStorage.getItem("loggedIn")!=="true"){
-window.location.href="login.html";
-}
-
-// ================= TOAST =================
-let name = localStorage.getItem("username") || "User";
-let toast = document.getElementById("toast");
-toast.innerText = "Welcome, " + name;
-toast.classList.add("show");
-
-setTimeout(()=>toast.classList.remove("show"),3000);
-
-// ================= LANGUAGE =================
-const langBox = document.querySelector(".language-box");
-const langBtn = document.querySelector(".lang-btn");
-
-langBtn.onclick = (e)=>{
-e.stopPropagation();
-langBox.classList.toggle("active");
-};
-
-document.onclick = (e)=>{
-if(!langBox.contains(e.target)){
-langBox.classList.remove("active");
-}
-};
-
-const t = {
-en:{d:"Dashboard",r:"Rain Level",w:"Water Saved",s:"System Status"},
-ar:{d:"لوحة التحكم",r:"مستوى المطر",w:"المياه المحفوظة",s:"حالة النظام"},
-fr:{d:"Tableau de bord",r:"Niveau de pluie",w:"Eau économisée",s:"Statut du système"}
-};
-
-window.setLanguage = (l)=>{
-document.getElementById("welcome-text").innerText = t[l].d;
-document.getElementById("card1-title").innerText = t[l].r;
-document.getElementById("card2-title").innerText = t[l].w;
-document.getElementById("card3-title").innerText = t[l].s;
-localStorage.setItem("language",l);
-};
-
-setLanguage(localStorage.getItem("language") || "en");
-
-// ================= RUN =================
+// ================= INIT =================
 loadWeather();
 loadMap();
 
-};
 </script>
 
 </body>
