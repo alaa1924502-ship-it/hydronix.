@@ -2,165 +2,217 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Hydronix | Login</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<title>Log In</title>
 <style>
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Segoe UI", Tahoma, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
 }
 
 body {
-    min-height: 100vh;
-    background: linear-gradient(135deg, #2f7ee6, #1f63d6);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  background: #f5f5f5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
 .container {
-    background: white;
-    width: 360px;
-    padding: 30px;
-    border-radius: 20px;
-    text-align: center;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  display: flex;
+  width: 1100px;
+  height: 500px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  background: #fff;
 }
 
-.container h1 {
-    color: #1f63d6;
-    margin-bottom: 10px;
+.left {
+  width: 50%;
+  background: url('background.jpeg') center/cover no-repeat;
+  position: relative;
 }
 
-.container p {
-    color: #555;
-    font-size: 14px;
-    margin-bottom: 25px;
+.overlay h2 {
+  position: absolute;
+  bottom: 30px;
+  left: 30px;
+  color: #ffffff;
+  font-size: 24px;
 }
 
-input {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 15px;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-    font-size: 14px;
+.right {
+  width: 50%;
+  background: #003366;
+  color: #ffffff;
+  padding: 50px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 40px;
+  border-radius: 0 12px 12px 0;
+}
+
+.top {
+  text-align: center;
+}
+
+.top h1 {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.top p {
+  font-size: 16px;
+  color: #a3d1ff;
+  margin-bottom: 30px;
+}
+
+.middle form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+form input {
+  width: 100%;
+  padding: 20px;
+  border: none;
+  border-radius: 8px;
+  background: #004080;
+  color: #ffffff;
+  font-size: 16px;
+}
+
+.password-field {
+  position: relative;
+}
+
+.password-field span {
+  position: absolute;
+  right: 15px;
+  top: 18px;
+  cursor: pointer;
 }
 
 button {
-    width: 100%;
-    padding: 12px;
-    background: #1f63d6;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
-    cursor: pointer;
+  width: 100%;
+  padding: 20px;
+  background: #0055a5;
+  border: none;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
-select {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 20px;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-    font-size: 14px;
-    cursor: pointer;
+button:hover {
+  background: #004080;
+}
+
+.bottom {
+  text-align: center;
+  font-size: 14px;
+}
+
+.bottom a {
+  color: #a3d1ff;
+  text-decoration: none;
 }
 </style>
 </head>
-
 <body>
-
 <div class="container">
-    <h1 id="title">💧 Hydronix</h1>
-    <p id="subtitle">Login to continue</p>
 
-    <select id="language" onchange="setLanguage()">
-        <option value="en">English</option>
-        <option value="ar">العربية</option>
-        <option value="fr">Français</option>
-    </select>
+  <div class="left">
+    <div class="overlay">
+      <h2>Welcome Back!</h2>
+    </div>
+  </div>
 
-    <input type="text" id="username" placeholder="Your Name" autocomplete="off">
-    <input type="email" id="email" placeholder="Email" autocomplete="off">
-    <input type="password" id="password" placeholder="Password" autocomplete="off">
-    <button onclick="login()" id="loginBtn">Log In</button>
+  <div class="right">
+
+    <div class="top">
+      <h1>Log In</h1>
+      <p>Enter your credentials to continue.</p>
+    </div>
+
+    <div class="middle">
+      <form onsubmit="handleLogin(event)">
+        <input type="email" placeholder="Email" required>
+        <div class="password-field">
+          <input type="password" placeholder="Enter your password" required>
+          <span onclick="togglePassword()">👁</span>
+        </div>
+        <button type="submit" onclick="website2">Log In</button>
+      </form>
+    </div>
+
+    <div class="bottom">
+      <p>Don't have an account? <a href="register.html">Sign up</a></p>
+    </div>
+
+  </div>
+
 </div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { 
+  getAuth,
+  signInWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-<script>
-// ترجمة النصوص
-const translations = {
-    en: {
-        title: "💧 Hydronix",
-        subtitle: "Login to continue",
-        username: "Your Name",
-        email: "Email",
-        password: "Password",
-        loginBtn: "Log In",
-        alertName: "Please enter your name"
-    },
-    ar: {
-        title: "💧 هيدرونيكس",
-        subtitle: "سجل الدخول للمتابعة",
-        username: "اسمك",
-        email: "البريد الإلكتروني",
-        password: "كلمة المرور",
-        loginBtn: "تسجيل الدخول",
-        alertName: "من فضلك أدخل اسمك"
-    },
-    fr: {
-        title: "💧 Hydronix",
-        subtitle: "Connectez-vous pour continuer",
-        username: "Votre Nom",
-        email: "Email",
-        password: "Mot de passe",
-        loginBtn: "Se connecter",
-        alertName: "Veuillez entrer votre nom"
-    }
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyAswvBN_h2Cx94a0QaYetgmdrGeKYGl6rU",
+  authDomain: "lucky-nature-490301-d9.firebaseapp.com",
+  projectId: "lucky-nature-490301-d9"
 };
 
-// ضبط اللغة
-function setLanguage() {
-    const lang = document.getElementById("language").value;
-    localStorage.setItem("lang", lang);
-    applyLanguage();
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// LOGIN FUNCTION
+window.handleLogin = function(e) {
+  e.preventDefault();
+
+  const email = document.querySelector('input[type="email"]').value;
+  const password = document.querySelector('input[type="password"]').value;
+
+  signInWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      alert("Login successful ✅");
+
+      localStorage.setItem("loggedIn", "true");
+
+      window.location.href = "website.html";
+    })
+    .catch((error) => {
+      alert("Wrong email or password ❌");
+    });
 }
 
-// تطبيق اللغة على النصوص
-function applyLanguage() {
-    const lang = localStorage.getItem("lang") || "en";
-    document.getElementById("title").textContent = translations[lang].title;
-    document.getElementById("subtitle").textContent = translations[lang].subtitle;
-    document.getElementById("username").placeholder = translations[lang].username;
-    document.getElementById("email").placeholder = translations[lang].email;
-    document.getElementById("password").placeholder = translations[lang].password;
-    document.getElementById("loginBtn").textContent = translations[lang].loginBtn;
-    document.getElementById("language").value = lang;
+// password toggle
+window.togglePassword = function() {
+  const password = document.querySelector('input[type="password"]');
+  password.type = password.type === "password" ? "text" : "password";
 }
-
-// دالة تسجيل الدخول
-function login() {
-    const name = document.getElementById("username").value;
-    const lang = localStorage.getItem("lang") || "en";
-
-    if(name === ""){
-        alert(translations[lang].alertName);
-        return;
-    }
-
-    localStorage.setItem("loggedIn", "true");
-    localStorage.setItem("username", name);
-
-    window.location.href = "website.html";
-}
-
-// عند تحميل الصفحة، نطبق اللغة المختارة سابقاً
-window.onload = applyLanguage;
 </script>
+<script>
+function togglePassword() {
+  const password = document.querySelector('input[type="password"]');
+  password.type = password.type === "password" ? "text" : "password";
+}
 
+function handleLogin(e) {
+  e.preventDefault();
+
+  window.location.href = 'website.html';
+
+}
+</script>
 </body>
 </html>
